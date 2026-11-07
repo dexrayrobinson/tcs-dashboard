@@ -307,6 +307,22 @@ footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);font-si
 </section>
 
 <!-- j. Every posted clip -->
+<section id="tt-s" class="reveal">
+  <div class="sec-h"><h2>TikTok scoring <span class="tag">TT-RR partial draft (no reach/saves; views stand-in)</span><span class="tag live">live from tracker</span></h2></div>
+  <p class="note" id="ttNote">TT-RR = (Shares×3 + Comments×3) ÷ Views × 1000. Bands from the Benchmarks tab: Dim &lt; P25 · Steady P25–P75 · Bright P75–P90 · Outlier ≥ P90. Clips under 100 views show as "Too early/low views". Priority metrics are shown, not scored.</p>
+  <div class="grid" id="ttCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px"></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-top:16px">
+    <div class="card chart-card"><div><h3>Clips by band</h3><div class="cap" id="ttBandCap">TikTok · TT Scores tab</div></div><div class="chart-box wait"><canvas id="cTTBand"></canvas></div></div>
+    <div class="card chart-card"><div><h3>Posts and views per month</h3><div class="cap">TikTok · by post date (ET)</div></div><div class="chart-box wait"><canvas id="cTTTime"></canvas></div></div>
+    <div class="card chart-card"><div><h3>Albums: median TT-RR</h3><div class="cap">Matched TT posts only · line = TikTok median</div></div><div class="chart-box wait" id="bTTAlb"><canvas id="cTTAlb"></canvas></div></div>
+    <div class="card chart-card"><div><h3>Albums: band mix</h3><div class="cap">Share of scored clips per band</div></div><div class="chart-box wait" id="bTTMix"><canvas id="cTTMix"></canvas></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Album performance (TikTok)</h3><div class="cap">Working = median at or above Steady median · Not working = every scored clip Dim (fails across all metrics) · otherwise Mixed. Observation window: albums 28d after last clip.</div><div class="scroll" style="max-height:520px;overflow:auto"><table id="tTTAlb"></table></div></div>
+  <div class="card" style="margin-top:16px"><h3>Parent video rollup (TikTok)</h3><div class="cap" id="nTTSrc"></div><div class="scroll" style="max-height:520px;overflow:auto"><table id="tTTSrc"></table></div></div>
+  <div class="card" style="margin-top:16px"><h3>Top TikTok clips by TT-RR</h3><div class="cap">Scored clips (≥100 views) · search below the table to filter</div><input id="ttq" placeholder="Filter clips" style="margin:8px 0;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:transparent;color:inherit"><div class="scroll" style="max-height:520px;overflow:auto"><table id="tTTClips"></table></div></div>
+  <div class="card" style="margin-top:16px"><h3>Instagram scoring <span class="tag">IG-RR v0.1 draft</span></h3><div class="cap" id="igCap"></div><div class="chart-box wait" style="height:260px"><canvas id="cIGBand"></canvas></div></div>
+</section>
+
 <section id="clips-s" class="reveal">
   <div class="sec-h"><h2>Every posted clip <span class="tag live">live from tracker</span></h2></div>
   <div class="card tcard">
@@ -470,5 +486,50 @@ const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEac
 document.querySelectorAll('.reveal').forEach(el=>io?io.observe(el):el.classList.add('in'));
 loadHolds().finally(load);
 </script>
+<script>
+/* ---------- TikTok / scoring (TT Posts, TT Snapshots, TT Scores, Benchmarks, IG Scores) ---------- */
+(function(){
+const BC={Dim:'#8E8E93',Steady:'#007AFF',Bright:'#FF9F0A',Outlier:'#34C759','Too early/low views':'rgba(142,142,147,.35)'},BANDS=['Dim','Steady','Bright','Outlier','Too early/low views'];
+const pill=b=>`<span class="tag" style="background:${BC[b]||'#ccc'};color:#fff">${esc(b)}</span>`;
+const med=a=>{if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
+let D=null;
+async function loadTT(){try{const [tp,ts,sc,bm,cl,igs]=await Promise.all(['TT Posts','TT Snapshots','TT Scores','Benchmarks','Clip Log','IG Scores'].map(n=>tab(n).catch(()=>[])));D={tp,ts,sc,bm,cl,igs};draw()}catch(e){console.error('tt',e)}}
+function draw(){if(!D||!window.Chart)return;const {tp,ts,sc,bm,cl,igs}=D,t=applyChartTheme()||theme();
+ const B=bm.find(r=>r.platform==='TT')||{},P25=num(B.floor_p25),P50=num(B.baseline_median),P75=num(B.target_p75),P90=num(B.outlier_p90);
+ const snap=new Map(ts.map(s=>[s.post_id,s])),score=new Map(sc.map(s=>[s.post_id,s]));
+ const R=tp.filter(p=>p.post_id).map(p=>{const s=snap.get(p.post_id)||{},c=score.get(p.post_id)||{};const v=num(s.views);const id=(p.clip_id||'').match(/^CL_(\d+)$/);const row=id?cl[+id[1]-2]:null;
+  return{id:p.post_id,url:p.post_url,date:p.post_date_ET,views:v,likes:num(s.likes),comments:num(s.comments),shares:num(s.shares),age:num(s.age_days),rr:c.score===''||c.score==null?null:num(c.score),band:v<100||!c.band?'Too early/low views':c.band,prov:/true/i.test(c.provisional),file:row?row.Filename:'',album:row?row['Source album']:'',src:row?row['Source file']:''}});
+ const tot=k=>R.reduce((a,r)=>a+r[k],0),scored=R.filter(r=>r.band!=='Too early/low views'),matched=R.filter(r=>r.album);
+ const bc=Object.fromEntries(BANDS.map(b=>[b,R.filter(r=>r.band===b).length]));
+ $('ttCards').innerHTML=card('TikTok posts',fmt(R.length),`${R.length?R.map(r=>r.date).sort()[0]:''} → ${R.length?R.map(r=>r.date).sort().pop():''}`,'live')+card('Views',fmt(tot('views')),'Views stand-in for reach')+card('Likes',fmt(tot('likes')),'Shown, not scored')+card('Comments',fmt(tot('comments')),'Weighted ×3')+card('Shares',fmt(tot('shares')),'Weighted ×3')+card('Median TT-RR',P50.toFixed(2),`P25 ${P25.toFixed(2)} · P75 ${P75.toFixed(2)} · P90 ${P90.toFixed(2)} · n=${esc(B.sample_n||'')}`)+card('Matched to Clip Log',fmt(matched.length),`of ${fmt(R.length)} posts`);
+ $('ttBandCap').textContent=`${fmt(scored.length)} scored · ${fmt(bc['Too early/low views'])} too early/low views · benchmark ${esc(B.status||'')}`;
+ chart('cTTBand',{type:'bar',data:{labels:BANDS,datasets:[{data:BANDS.map(b=>bc[b]),backgroundColor:BANDS.map(b=>BC[b]),borderRadius:6,borderSkipped:false}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${fmt(c.raw)} clips · ${R.length?(c.raw/R.length*100).toFixed(1):0}%`}}}}});
+ const M={};for(const r of R){const k=(r.date||'').slice(0,7);if(!k)continue;(M[k]??={p:0,v:0});M[k].p++;M[k].v+=r.views}const mk=Object.keys(M).sort();
+ chart('cTTTime',{data:{labels:mk,datasets:[{type:'bar',label:'Posts',data:mk.map(k=>M[k].p),backgroundColor:'rgba(0,122,255,.35)',borderRadius:4,yAxisID:'y'},{type:'line',label:'Views',data:mk.map(k=>M[k].v),borderColor:'#FF9F0A',backgroundColor:'#FF9F0A',tension:.3,yAxisID:'y1'}]},options:{maintainAspectRatio:false,scales:{y:{position:'left',title:{display:true,text:'Posts'}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>short(v)},title:{display:true,text:'Views'}}}}});
+ // albums
+ const roll=(key)=>{const o={};for(const r of matched){const k=r[key];if(!k)continue;const a=o[k]??={k,album:r.album,clips:0,views:0,rrs:[],b:{Dim:0,Steady:0,Bright:0,Outlier:0,'Too early/low views':0},last:''};a.clips++;a.views+=r.views;a.b[r.band]++;if(r.band!=='Too early/low views')a.rrs.push(r.rr);if(r.date>a.last)a.last=r.date}
+  return Object.values(o).map(a=>{a.med=med(a.rrs);a.n=a.rrs.length;a.status=!a.n?'Too early':a.med>=P50?'Working':a.b.Dim===a.n?'Not working':'Mixed';return a})};
+ const A=roll('album').sort((a,b)=>b.views-a.views),SC={Working:'#34C759',Mixed:'#FF9F0A','Not working':'#FF3B30','Too early':'#8E8E93'};
+ const mixCell=(_,a)=>BANDS.slice(0,4).map(b=>a.b[b]?`<span style="color:${BC[b]};font-weight:600">${a.b[b]}</span>`:'<span style="opacity:.3">0</span>').join(' / ');
+ table('tTTAlb',[{k:'k',l:'Album',cls:'strong wrap'},{k:'clips',l:'TT clips',n:1},{k:'views',l:'Views',n:1,f:fmt},{k:'med',l:'Median TT-RR',n:1,f:v=>v.toFixed(2)},{k:'mix',l:'Dim / Steady / Bright / Outlier',f:v=>v},{k:'last',l:'Last clip'},{k:'status',l:'Status',f:v=>`<span class="tag" style="background:${SC[v]};color:#fff">${v}</span>`}],A.map(a=>({...a,mix:mixCell(0,a)})),'views');
+ const top=A.filter(a=>a.n).slice(0,15);$('bTTAlb').style.height=$('bTTMix').style.height=Math.max(260,top.length*28+60)+'px';
+ chart('cTTAlb',{type:'bar',data:{labels:top.map(a=>a.k),datasets:[{label:'Median TT-RR',data:top.map(a=>+a.med.toFixed(2)),backgroundColor:top.map(a=>SC[a.status]),borderRadius:6,borderSkipped:false},{type:'line',label:'TikTok median',data:top.map(()=>P50),borderColor:t.mut,borderDash:[4,4],pointRadius:0}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.datasetIndex?` TikTok median ${P50.toFixed(2)}`:` ${c.raw} · ${top[c.dataIndex].n} scored · ${fmt(top[c.dataIndex].views)} views · ${top[c.dataIndex].status}`}}}}});
+ chart('cTTMix',{type:'bar',data:{labels:top.map(a=>a.k),datasets:BANDS.slice(0,4).map(b=>({label:b,data:top.map(a=>+(a.b[b]/a.n*100).toFixed(1)),backgroundColor:BC[b]}))},options:{indexAxis:'y',maintainAspectRatio:false,scales:{x:{stacked:true,max:100,ticks:{callback:v=>v+'%'}},y:{stacked:true}},plugins:{legend:{position:'top',align:'end'}}}});
+ const S=roll('src').sort((a,b)=>b.views-a.views);$('nTTSrc').textContent=`${S.length} parent videos with matched TikTok clips`;
+ table('tTTSrc',[{k:'k',l:'Parent video',cls:'file'},{k:'album',l:'Album',cls:'wrap'},{k:'clips',l:'TT clips',n:1},{k:'views',l:'Views',n:1,f:fmt},{k:'med',l:'Median TT-RR',n:1,f:v=>v.toFixed(2)},{k:'mix',l:'Dim / Steady / Bright / Outlier',f:v=>v},{k:'status',l:'Status',f:v=>`<span class="tag" style="background:${SC[v]};color:#fff">${v}</span>`}],S.map(a=>({...a,mix:mixCell(0,a)})),'views');
+ const C=R.map(r=>({...r,rrv:r.rr??-1}));
+ const cols=[{k:'date',l:'Posted'},{k:'file',l:'Clip',cls:'file',f:(v,r)=>v?esc(v):'<span style="opacity:.5">unmatched</span>'},{k:'album',l:'Album',cls:'wrap'},{k:'views',l:'Views',n:1,f:fmt},{k:'likes',l:'Likes',n:1,f:fmt},{k:'comments',l:'Comments',n:1,f:fmt},{k:'shares',l:'Shares',n:1,f:fmt},{k:'rrv',l:'TT-RR',n:1,f:v=>v<0?'—':v.toFixed(2)},{k:'band',l:'Band',f:(v,r)=>pill(v)+(r&&r.prov?' <span class="tag">provisional</span>':'')},{k:'url',l:'Link',f:v=>v?`<a href="${esc(v)}" target="_blank" rel="noopener">open</a>`:''}];
+ const T=table('tTTClips',cols,C,'rrv');$('ttq').oninput=e=>{const q=e.target.value.toLowerCase();T.set(q?C.filter(c=>Object.values(c).join(' ').toLowerCase().includes(q)):C)};
+ // IG
+ const ib=Object.fromEntries(BANDS.slice(0,4).map(b=>[b,igs.filter(r=>r.band===b).length]));const IB=bm.find(r=>r.platform==='IG')||{};
+ $('igCap').textContent=igs.length?`${igs.length} IG posts in IG Scores · bands P25 ${num(IB.floor_p25).toFixed(2)} / median ${num(IB.baseline_median).toFixed(2)} / P75 ${num(IB.target_p75).toFixed(2)} / P90 ${num(IB.outlier_p90).toFixed(2)} · window 14d · needs reach`:'IG Scores tab not available';
+ chart('cIGBand',{type:'bar',data:{labels:BANDS.slice(0,4),datasets:[{data:BANDS.slice(0,4).map(b=>ib[b]),backgroundColor:BANDS.slice(0,4).map(b=>BC[b]),borderRadius:6}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+}
+new MutationObserver(()=>setTimeout(draw,0)).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+skeleton('tTTAlb',6,7);skeleton('tTTSrc',6,7);skeleton('tTTClips',8,10);
+loadTT();
+})();
+</script>
+
 </body>
 </html>
