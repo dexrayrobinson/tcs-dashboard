@@ -1,0 +1,564 @@
+{
+ "generated": "2026-11-02",
+ "counts": {
+  "rows_read": 2075,
+  "posted_clips": 954,
+  "too_early": 15,
+  "non_performing": 175,
+  "ok": 702,
+  "insufficient_data": 1,
+  "no_post_date": 61
+ },
+ "by_page": {
+  "@thatcloudstudio": {
+   "clips": 865,
+   "total_views": 4340633.0,
+   "median_views": 1062.0,
+   "avg_resonance_rate_views_weighted": 20.0,
+   "status_counts": {
+    "non_performing": 171,
+    "ok": 692,
+    "too_early": 2
+   }
+  },
+  "@thatwalkytalkstudio": {
+   "clips": 13,
+   "total_views": 68705.0,
+   "median_views": 2946.0,
+   "avg_resonance_rate_views_weighted": 14.89,
+   "status_counts": {
+    "non_performing": 3,
+    "ok": 10
+   }
+  },
+  "@ThatCloudStudioTV": {
+   "clips": 74,
+   "total_views": 8344.0,
+   "median_views": 37.5,
+   "avg_resonance_rate_views_weighted": 0.0,
+   "status_counts": {
+    "no_post_date": 61,
+    "too_early": 13
+   }
+  },
+  "@thatcloud2": {
+   "clips": 2,
+   "total_views": 4399.0,
+   "median_views": 2199.5,
+   "avg_resonance_rate_views_weighted": 4.68,
+   "status_counts": {
+    "insufficient_data": 1,
+    "non_performing": 1
+   }
+  }
+ },
+ "by_platform": {
+  "tiktok": {
+   "clips": 851,
+   "total_views": 4220818.0,
+   "median_views": 1049.0,
+   "avg_resonance_rate_views_weighted": 20.39,
+   "status_counts": {
+    "non_performing": 172,
+    "ok": 679
+   }
+  },
+  "instagram_reels": {
+   "clips": 44,
+   "total_views": 1175571.0,
+   "median_views": 5553.5,
+   "avg_resonance_rate_views_weighted": 39.45,
+   "status_counts": {
+    "insufficient_data": 1,
+    "non_performing": 4,
+    "ok": 37,
+    "too_early": 2
+   }
+  },
+  "youtube_shorts": {
+   "clips": 122,
+   "total_views": 674699.0,
+   "median_views": 188.0,
+   "avg_resonance_rate_views_weighted": 18.65,
+   "status_counts": {
+    "no_post_date": 61,
+    "non_performing": 3,
+    "ok": 45,
+    "too_early": 13
+   }
+  }
+ },
+ "by_album": {
+  "Older content": {
+   "clips": 321,
+   "total_views": 1256712.0,
+   "median_views": 680.5,
+   "avg_resonance_rate_views_weighted": 15.48,
+   "status_counts": {
+    "insufficient_data": 1,
+    "no_post_date": 2,
+    "non_performing": 90,
+    "ok": 227,
+    "too_early": 1
+   }
+  },
+  "Murder Mystery Night + Sep 27th": {
+   "clips": 8,
+   "total_views": 913060.0,
+   "median_views": 14435.0,
+   "avg_resonance_rate_views_weighted": 47.86,
+   "status_counts": {
+    "ok": 8
+   }
+  },
+  "June 30th": {
+   "clips": 16,
+   "total_views": 390229.0,
+   "median_views": 1061.0,
+   "avg_resonance_rate_views_weighted": 2.3,
+   "status_counts": {
+    "non_performing": 1,
+    "ok": 15
+   }
+  },
+  "Rosabell Camp": {
+   "clips": 28,
+   "total_views": 359793.0,
+   "median_views": 2883.5,
+   "avg_resonance_rate_views_weighted": 19.26,
+   "status_counts": {
+    "non_performing": 3,
+    "ok": 25
+   }
+  },
+  "The Reasoning 3": {
+   "clips": 46,
+   "total_views": 302974.0,
+   "median_views": 3822.5,
+   "avg_resonance_rate_views_weighted": 9.61,
+   "status_counts": {
+    "non_performing": 3,
+    "ok": 42,
+    "too_early": 1
+   }
+  },
+  "Skeeno": {
+   "clips": 53,
+   "total_views": 181195.0,
+   "median_views": 776.0,
+   "avg_resonance_rate_views_weighted": 20.98,
+   "status_counts": {
+    "no_post_date": 8,
+    "non_performing": 6,
+    "ok": 36,
+    "too_early": 3
+   }
+  },
+  "July 4th": {
+   "clips": 20,
+   "total_views": 165662.0,
+   "median_views": 758.0,
+   "avg_resonance_rate_views_weighted": 19.92,
+   "status_counts": {
+    "non_performing": 4,
+    "ok": 16
+   }
+  },
+  "The Reasoning 2": {
+   "clips": 74,
+   "total_views": 109620.0,
+   "median_views": 951.0,
+   "avg_resonance_rate_views_weighted": 7.12,
+   "status_counts": {
+    "no_post_date": 5,
+    "non_performing": 8,
+    "ok": 58,
+    "too_early": 3
+   }
+  },
+  "June 13th": {
+   "clips": 40,
+   "total_views": 92697.0,
+   "median_views": 802.5,
+   "avg_resonance_rate_views_weighted": 11.62,
+   "status_counts": {
+    "non_performing": 5,
+    "ok": 35
+   }
+  },
+  "Feb 18th Cardo": {
+   "clips": 31,
+   "total_views": 87387.0,
+   "median_views": 1218.0,
+   "avg_resonance_rate_views_weighted": 6.83,
+   "status_counts": {
+    "non_performing": 8,
+    "ok": 23
+   }
+  },
+  "March 7th 2026 (Russell)": {
+   "clips": 36,
+   "total_views": 77443.0,
+   "median_views": 1198.5,
+   "avg_resonance_rate_views_weighted": 6.47,
+   "status_counts": {
+    "non_performing": 9,
+    "ok": 27
+   }
+  },
+  "Feb 28th": {
+   "clips": 33,
+   "total_views": 71404.0,
+   "median_views": 1425.0,
+   "avg_resonance_rate_views_weighted": 7.8,
+   "status_counts": {
+    "non_performing": 6,
+    "ok": 27
+   }
+  },
+  "March 28th rosabell - writing camp": {
+   "clips": 23,
+   "total_views": 64316.0,
+   "median_views": 1103.0,
+   "avg_resonance_rate_views_weighted": 7.77,
+   "status_counts": {
+    "non_performing": 5,
+    "ok": 18
+   }
+  },
+  "Steady Mobbin": {
+   "clips": 17,
+   "total_views": 50487.0,
+   "median_views": 1493.0,
+   "avg_resonance_rate_views_weighted": 10.0,
+   "status_counts": {
+    "ok": 17
+   }
+  },
+  "The Reasoning May 2nd 2026": {
+   "clips": 44,
+   "total_views": 48883.0,
+   "median_views": 715.0,
+   "avg_resonance_rate_views_weighted": 7.39,
+   "status_counts": {
+    "no_post_date": 14,
+    "non_performing": 7,
+    "ok": 22,
+    "too_early": 1
+   }
+  },
+  "ThatCloudStudio": {
+   "clips": 3,
+   "total_views": 36911.0,
+   "median_views": 15600.0,
+   "avg_resonance_rate_views_weighted": 16.55,
+   "status_counts": {
+    "non_performing": 1,
+    "ok": 2
+   }
+  },
+  "April 24th 2026": {
+   "clips": 8,
+   "total_views": 29508.0,
+   "median_views": 1923.0,
+   "avg_resonance_rate_views_weighted": 9.83,
+   "status_counts": {
+    "non_performing": 1,
+    "ok": 7
+   }
+  },
+  "The Open House - Mr.Shibuya": {
+   "clips": 5,
+   "total_views": 24401.0,
+   "median_views": 1921.0,
+   "avg_resonance_rate_views_weighted": 5.37,
+   "status_counts": {
+    "no_post_date": 1,
+    "ok": 4
+   }
+  },
+  "Open house ep 1 - Mr Woeski": {
+   "clips": 31,
+   "total_views": 21973.0,
+   "median_views": 270.5,
+   "avg_resonance_rate_views_weighted": 5.86,
+   "status_counts": {
+    "no_post_date": 16,
+    "ok": 12,
+    "too_early": 3
+   }
+  },
+  "08-MAR-26": {
+   "clips": 13,
+   "total_views": 21540.0,
+   "median_views": 1262.0,
+   "avg_resonance_rate_views_weighted": 3.85,
+   "status_counts": {
+    "no_post_date": 1,
+    "ok": 12
+   }
+  },
+  "May 18th": {
+   "clips": 16,
+   "total_views": 20675.0,
+   "median_views": 794.5,
+   "avg_resonance_rate_views_weighted": 7.5,
+   "status_counts": {
+    "non_performing": 2,
+    "ok": 14
+   }
+  },
+  "21-MAR-26": {
+   "clips": 12,
+   "total_views": 16093.0,
+   "median_views": 1244.5,
+   "avg_resonance_rate_views_weighted": 4.6,
+   "status_counts": {
+    "non_performing": 1,
+    "ok": 11
+   }
+  },
+  "Monday Feb 9th": {
+   "clips": 14,
+   "total_views": 15375.0,
+   "median_views": 825.5,
+   "avg_resonance_rate_views_weighted": 6.89,
+   "status_counts": {
+    "no_post_date": 1,
+    "non_performing": 5,
+    "ok": 8
+   }
+  },
+  "June 27th": {
+   "clips": 15,
+   "total_views": 13428.0,
+   "median_views": 606.0,
+   "avg_resonance_rate_views_weighted": 8.04,
+   "status_counts": {
+    "non_performing": 3,
+    "ok": 12
+   }
+  },
+  "El De Negro": {
+   "clips": 3,
+   "total_views": 9019.0,
+   "median_views": 1754.0,
+   "avg_resonance_rate_views_weighted": 10.09,
+   "status_counts": {
+    "non_performing": 1,
+    "ok": 2
+   }
+  },
+  "Monday feb 16th": {
+   "clips": 7,
+   "total_views": 8757.0,
+   "median_views": 1024.0,
+   "avg_resonance_rate_views_weighted": 4.34,
+   "status_counts": {
+    "non_performing": 3,
+    "ok": 4
+   }
+  },
+  "March 21": {
+   "clips": 6,
+   "total_views": 7433.0,
+   "median_views": 1267.5,
+   "avg_resonance_rate_views_weighted": 5.92,
+   "status_counts": {
+    "no_post_date": 1,
+    "ok": 5
+   }
+  },
+  "The Reasoning: Horizontal": {
+   "clips": 3,
+   "total_views": 7376.0,
+   "median_views": 2331.0,
+   "avg_resonance_rate_views_weighted": 10.44,
+   "status_counts": {
+    "ok": 3
+   }
+  },
+  "Sat Apr 25 2026": {
+   "clips": 4,
+   "total_views": 5386.0,
+   "median_views": 1221.0,
+   "avg_resonance_rate_views_weighted": 3.9,
+   "status_counts": {
+    "non_performing": 1,
+    "ok": 3
+   }
+  },
+  "Bana’ 2026": {
+   "clips": 3,
+   "total_views": 5229.0,
+   "median_views": 1309.0,
+   "avg_resonance_rate_views_weighted": 10.13,
+   "status_counts": {
+    "ok": 3
+   }
+  },
+  "03 APR 2026": {
+   "clips": 4,
+   "total_views": 4388.0,
+   "median_views": 1052.5,
+   "avg_resonance_rate_views_weighted": 3.19,
+   "status_counts": {
+    "non_performing": 2,
+    "ok": 2
+   }
+  },
+  "May 8th 2026 - Aimée prod camp": {
+   "clips": 2,
+   "total_views": 2149.0,
+   "median_views": 1074.5,
+   "avg_resonance_rate_views_weighted": 10.24,
+   "status_counts": {
+    "ok": 2
+   }
+  },
+  "May 7th RUSSELL! Show": {
+   "clips": 15,
+   "total_views": 578.0,
+   "median_views": 22.0,
+   "avg_resonance_rate_views_weighted": null,
+   "status_counts": {
+    "no_post_date": 12,
+    "too_early": 3
+   }
+  }
+ },
+ "album_status": {
+  "The Reasoning 3": {
+   "last_clip_posted": "2026-10-20",
+   "status": "too_early"
+  },
+  "Bana’ 2026": {
+   "last_clip_posted": "2026-08-02",
+   "status": "ok"
+  },
+  "Open house ep 1 - Mr Woeski": {
+   "last_clip_posted": "2026-10-26",
+   "status": "too_early"
+  },
+  "The Reasoning 2": {
+   "last_clip_posted": "2026-10-26",
+   "status": "too_early"
+  },
+  "March 21": {
+   "last_clip_posted": "2026-03-25",
+   "status": "ok"
+  },
+  "Rosabell Camp": {
+   "last_clip_posted": "2026-04-03",
+   "status": "ok"
+  },
+  "The Reasoning: Horizontal": {
+   "last_clip_posted": "2026-10-14",
+   "status": "too_early"
+  },
+  "The Open House - Mr.Shibuya": {
+   "last_clip_posted": "2026-09-14",
+   "status": "ok"
+  },
+  "08-MAR-26": {
+   "last_clip_posted": "2026-04-27",
+   "status": "ok"
+  },
+  "March 7th 2026 (Russell)": {
+   "last_clip_posted": "2026-04-18",
+   "status": "ok"
+  },
+  "Skeeno": {
+   "last_clip_posted": "2026-10-25",
+   "status": "too_early"
+  },
+  "The Reasoning May 2nd 2026": {
+   "last_clip_posted": "2026-10-26",
+   "status": "too_early"
+  },
+  "June 13th": {
+   "last_clip_posted": "2026-07-02",
+   "status": "ok"
+  },
+  "Older content": {
+   "last_clip_posted": "2026-10-25",
+   "status": "too_early"
+  },
+  "Feb 28th": {
+   "last_clip_posted": "2026-04-15",
+   "status": "ok"
+  },
+  "Feb 18th Cardo": {
+   "last_clip_posted": "2026-04-03",
+   "status": "ok"
+  },
+  "El De Negro": {
+   "last_clip_posted": "2026-02-25",
+   "status": "ok"
+  },
+  "July 4th": {
+   "last_clip_posted": "2026-07-24",
+   "status": "ok"
+  },
+  "Monday feb 16th": {
+   "last_clip_posted": "2026-02-27",
+   "status": "ok"
+  },
+  "March 28th rosabell - writing camp": {
+   "last_clip_posted": "2026-04-24",
+   "status": "ok"
+  },
+  "Monday Feb 9th": {
+   "last_clip_posted": "2026-05-22",
+   "status": "ok"
+  },
+  "21-MAR-26": {
+   "last_clip_posted": "2026-04-24",
+   "status": "ok"
+  },
+  "Sat Apr 25 2026": {
+   "last_clip_posted": "2026-05-13",
+   "status": "ok"
+  },
+  "June 30th": {
+   "last_clip_posted": "2026-07-10",
+   "status": "ok"
+  },
+  "03 APR 2026": {
+   "last_clip_posted": "2026-04-11",
+   "status": "ok"
+  },
+  "April 24th 2026": {
+   "last_clip_posted": "2026-05-28",
+   "status": "ok"
+  },
+  "Steady Mobbin": {
+   "last_clip_posted": "2026-10-18",
+   "status": "too_early"
+  },
+  "June 27th": {
+   "last_clip_posted": "2026-07-09",
+   "status": "ok"
+  },
+  "May 18th": {
+   "last_clip_posted": "2026-06-19",
+   "status": "ok"
+  },
+  "May 8th 2026 - Aimée prod camp": {
+   "last_clip_posted": "2026-05-20",
+   "status": "ok"
+  },
+  "Murder Mystery Night + Sep 27th": {
+   "last_clip_posted": "2026-10-12",
+   "status": "too_early"
+  },
+  "ThatCloudStudio": {
+   "last_clip_posted": "2026-03-02",
+   "status": "ok"
+  },
+  "May 7th RUSSELL! Show": {
+   "last_clip_posted": "2026-10-26",
+   "status": "too_early"
+  }
+ }
+}

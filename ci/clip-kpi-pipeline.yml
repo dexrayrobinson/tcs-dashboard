@@ -1,0 +1,43 @@
+# Move to .github/workflows/clip-kpi-pipeline.yml to activate (needs a gh token with `workflow` scope to push).
+name: clip-kpi-pipeline
+on:
+  schedule:
+    - cron: "17 */6 * * *"   # every 6 hours (UTC)
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Run even if no source changed"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+  id-token: write
+concurrency: clip-kpi-pipeline
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      HAS_SA: ${{ secrets.GCP_SA_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      # Tracker writes activate only once the service-account secret exists.
+      - id: gauth
+        if: ${{ env.HAS_SA == 'true' }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/spreadsheets
+      - name: Pipeline (tracker first, then dashboard)
+        env:
+          GOOGLE_ACCESS_TOKEN: ${{ steps.gauth.outputs.access_token }}
+        run: python scripts/pipeline.py ${{ inputs.force && '--force' || '' }}
+      - name: Commit regenerated reports and state
+        run: |
+          git config user.name "tcs-pipeline-bot"
+          git config user.email "tcs-pipeline-bot@users.noreply.github.com"
+          git add reports data/kpi.json state
+          git diff --cached --quiet || git commit -m "pipeline: refresh clip KPI $(date -u +%F' '%H:%M)Z"
+          git push

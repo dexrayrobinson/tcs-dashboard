@@ -1,0 +1,36 @@
+{
+  "_doc": "Every threshold used by clip_kpi.py lives here. Edit here, not in code.",
+  "sheet_id": "13TFBiaxGX2wyC-7PDjRMVjAiCHDA5NUCKArhrv8sGXg",
+  "ig_export_account": "@thatcloudstudio",
+  "_ig_export_account_doc": "Instagram export files in data/sources/ belong to this account; only its Posted - Unmatched rows are filled.",
+  "tabs": {"clips": "Clip Log", "unmatched": "Posted - Unmatched"},
+  "observation_windows_days": {
+    "_doc": "A clip younger than its window is 'too_early', never 'non_performing'. Multi-platform clips use the LONGEST window of their platforms.",
+    "tiktok": 7,
+    "instagram_reels": 14,
+    "instagram_post": 14,
+    "youtube_shorts": 28,
+    "youtube_longform": 90,
+    "x": 7,
+    "unknown": 28,
+    "album_after_last_clip": 28
+  },
+  "resonance_bands": {
+    "_doc": "Resonance Rate = (saves+shares+comments)/views*1000, a per-1,000-views count, not a percent. Dim counts as a fail.",
+    "dim_below": 5,
+    "steady_below": 15,
+    "bright_below": 30,
+    "fail_bands": ["Dim"]
+  },
+  "fails": {
+    "_doc": "A clip is non_performing only if EVERY metric that could be computed for it fails, and at least min_metrics_for_verdict metrics were computable.",
+    "views_below_page_median": true,
+    "longevity_below": 1.1,
+    "min_metrics_for_verdict": 2
+  },
+  "missing_saves_policy": {
+    "_doc": "Tracker leaves Saves blank where the platform/export did not give it (most TikTok rows). We never treat blank as 0: Resonance Rate is then computed WITHOUT saves and marked partial=true so agents can see it.",
+    "compute_partial_without_saves": true
+  },
+  "report": {"top_n": 15, "list_cap": 40}
+}
