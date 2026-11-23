@@ -27,3 +27,16 @@ The Instagram tab has an **Instagram API** section for exactly two accounts: **@
 A blank (`null` in JSON, empty in CSV, `—` on the page) means the API returned an error or no value. It is never filled with 0. Errors are kept in `errors` and `media_insight_failures` for each account in the JSON.
 
 To add or remove accounts, edit `ACCOUNTS` at the top of the script. Only the accounts listed there are pulled.
+
+### Instagram API is the source of record (Dex, 2026-11-23)
+
+For @thatcloudstudio and @thatreasoningshow, the whole dashboard uses the API numbers, not only the Instagram API section:
+
+- Overview totals, the Instagram platform card, the platform split, the per-album Instagram views, the Instagram tab KPIs and the clip table all take API values.
+- Each tracker Instagram URL is matched to an API post by shortcode. Where they match, the post takes the API views, reach, likes, comments, shares and saves.
+- API posts that are missing from the tracker are added.
+- If the API has no value for a metric, the tracker value stays. Nothing is filled with 0.
+- Tracker figures that the API replaced stay on the page only as secondary context, labelled "Tracker, superseded by API".
+- Other Instagram accounts (@thatcloud2, Stratus, Nimbus, Walkity Talk Studio) keep their tracker numbers.
+
+Scoring is unchanged. IG-RR scores and bands still come from the tracker's IG Scores tab. The "too early/low views" gate (under 100 views) still uses tracker views.
