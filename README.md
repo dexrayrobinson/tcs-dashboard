@@ -40,3 +40,9 @@ For @thatcloudstudio and @thatreasoningshow, the whole dashboard uses the API nu
 - Other Instagram accounts (@thatcloud2, Stratus, Nimbus, Walkity Talk Studio) keep their tracker numbers.
 
 Scoring is unchanged. IG-RR scores and bands still come from the tracker's IG Scores tab. The "too early/low views" gate (under 100 views) still uses tracker views.
+
+### 30-day account views (Nov 23)
+
+The pull also stores `insights_30d` for each account, covering a rolling 30 days that ends at pull time. That's the most the Graph API allows (`since`..`until` can be at most 2,592,000 s apart). These 30-day figures are the headline account views and reach. Instagram's app uses its own day boundaries, so its "last 30 days" can differ a little.
+
+Lifetime totals summed over posts are labelled "lifetime, all posts" so they aren't mistaken for account views over a period.

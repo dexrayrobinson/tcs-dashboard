@@ -400,13 +400,13 @@ function renderTotals(live){const L=live||{};
  const pend=STATE=='fail'?'Unavailable':'Loading…';
  const d=tot-SNAP.total;
  const A=L.ig&&L.ig.api;
- const liveCol=(k,p)=>live&&k=='ig'&&A?`<div class="live"><div class="lbl"><span class="tag live">Instagram API + tracker</span></div><div class="v">${N('t-'+k,L[k].v)}</div><div class="sub">${fmt(L[k].v)} · ${fmt(L[k].p)} unique URLs<br>${fmt(A.v)} views on ${fmt(A.posts)} posts from the Instagram API (@thatcloudstudio, @thatreasoningshow) + ${fmt(L[k].v-A.v)} tracker views on other IG accounts<br><span style="opacity:.7">Tracker, superseded by API: ${fmt(L.ig.trk.v)} views · ${fmt(L.ig.trk.p)} URLs</span></div></div>`
+ const liveCol=(k,p)=>live&&k=='ig'&&A?`<div class="live"><div class="lbl"><span class="tag live">Instagram API + tracker</span></div><div class="v">${N('t-'+k,L[k].v)}</div><div class="sub">${fmt(L[k].v)} · ${fmt(L[k].p)} unique URLs<br>${fmt(A.v)} lifetime views summed over ${fmt(A.posts)} posts from the Instagram API (@thatcloudstudio, @thatreasoningshow; not 30-day account views) + ${fmt(L[k].v-A.v)} tracker views on other IG accounts<br><span style="opacity:.7">Tracker, superseded by API: ${fmt(L.ig.trk.v)} views · ${fmt(L.ig.trk.p)} URLs</span></div></div>`
    :live?`<div class="live"><div class="lbl"><span class="tag live">live from tracker</span></div><div class="v">${N('t-'+k,L[k].v)}</div><div class="sub">${fmt(L[k].v)} · ${fmt(L[k].p)} unique URLs</div></div>`
    :`<div class="live"><div class="lbl"><span class="tag live">live from tracker</span></div><div class="v" style="color:var(--mut)">—</div><div class="sub">${pend}</div></div>`;
  const plat=(name,k,pre)=>`<div class="card plat lift"><h3>${name}</h3><div class="cmp">
    <div><div class="lbl"><span class="tag">snapshot Oct 31</span></div><div class="v">${short(SNAP[k].v)}</div><div class="sub">${fmt(SNAP[k].v)} · ${pre}${fmt(SNAP[k].p)} posts</div></div>${liveCol(k)}</div></div>`;
  $('totals').innerHTML=
-  `<div class="card hero"><div><div class="lbl">Total views <span class="tag ${live?'live':''}">${live?(A?'Instagram API + live tracker':'live from tracker'):'snapshot Oct 31'}</span></div>
+  `<div class="card hero"><div><div class="lbl">Total views · lifetime, all posts <span class="tag ${live?'live':''}">${live?(A?'Instagram API + live tracker':'live from tracker'):'snapshot Oct 31'}</span></div>
      <div class="big">${live?N('t-total',tot):short(SNAP.total)}</div>
      <div class="sub">${live?(A?'Instagram (API for @thatcloudstudio + @thatreasoningshow, tracker for other IG accounts) + live TikTok + static YouTube':'Live Instagram + live TikTok + static YouTube'):'Instagram + TikTok + YouTube'}</div></div>
    <div class="hero-side"><div class="lbl"><span class="tag">snapshot Oct 31</span></div><div style="font-size:22px;font-weight:300;letter-spacing:-.02em" class="num">≈19.73M · ${fmt(SNAP.total)}</div>
@@ -414,7 +414,7 @@ function renderTotals(live){const L=live||{};
   plat('Instagram','ig','')+plat('TikTok','tt','~')+
   `<div class="card plat lift"><h3>YouTube</h3><div class="cmp" style="grid-template-columns:1fr"><div><div class="lbl"><span class="tag">static</span></div><div class="v">${fmt(SNAP.yt.v)}</div><div class="sub">${SNAP.yt.note}<br>Source: Oct 31 snapshot (not in tracker)</div></div></div></div>`;
  animateNums($('totals'))}
-function renderAud(){$('aud').innerHTML=card('YouTube subscribers','126','As of Oct 26 · Welman\'s Monday report','static')+(window.IGLIVE?card('Instagram followers',window.IGLIVE.accounts.map(a=>fmt(a.profile.followers_count??0)).join(' · '),window.IGLIVE.accounts.map(a=>'@'+esc(a.username)).join(' · ')+'<br>'+esc(window.IGLIVE.source),'Instagram API live'):card('Instagram followers','—','Not sourced'))+card('TikTok followers','—','Not sourced')}
+function renderAud(){$('aud').innerHTML=card('YouTube subscribers','126','As of Oct 26 · Welman\'s Monday report','static')+(window.IGLIVE?card('Instagram followers',window.IGLIVE.accounts.map(a=>fmt(a.profile.followers_count??0)).join(' · '),window.IGLIVE.accounts.map(a=>'@'+esc(a.username)).join(' · ')+'<br>'+esc(window.IGLIVE.source),'Instagram API live'):card('Instagram followers','—','Not sourced'))+(window.IGLIVE&&window.IGLIVE.window_30d?card('Instagram account views · last 30 days',window.IGLIVE.accounts.map(a=>a.insights_30d&&a.insights_30d.views!=null?fmt(a.insights_30d.views):'—').join(' · '),window.IGLIVE.accounts.map(a=>'@'+esc(a.username)).join(' · ')+'<br>Reach '+window.IGLIVE.accounts.map(a=>a.insights_30d&&a.insights_30d.reach!=null?fmt(a.insights_30d.reach):'—').join(' · ')+' · '+esc(window.IGLIVE.window_30d.since+' → '+window.IGLIVE.window_30d.until)+' ET','Instagram API live'):'')+card('TikTok followers','—','Not sourced')}
 function renderCounts(clip,posted,un){
  if(!clip){$('counts').innerHTML=['Clips cut','Posted','Unposted','Unmatched posts'].map(l=>card(l,'—',STATE=='fail'?'Unavailable':'Loading…')).join('');return}
  const share=clip.length?posted.length/clip.length:0;
@@ -594,7 +594,7 @@ function drawPane(p,t){const c=PL[p],R=D.P.filter(x=>x.plat==p),b=bm(p),hasScore
  const scored=R.filter(x=>BANDS.includes(x.band)),bc=Object.fromEntries([...BANDS,LOW,NS].map(k=>[k,R.filter(x=>x.band==k).length]));
  const per1k=(a,bb)=>med(R.filter(x=>x[a]!=null&&x[bb]>0).map(x=>x[a]/x[bb]*1000));const vel=a=>med(R.filter(x=>x[a]!=null&&x.age>=1).map(x=>x[a]/x.age));
  const w=c.checks.map(d=>R.filter(x=>x.age!=null&&x.age>=d).length);
- let K=card('Posts',fmt(R.length),R.length?`${R.map(x=>x.date).filter(Boolean).sort()[0]||''} → ${R.map(x=>x.date).filter(Boolean).sort().pop()||''}`:'',p=='IG'&&D.api&&D.api.posts?'Instagram API + tracker':'live')+card('Views',fN(V.s),sk(V,p=='IG'?'Views stand-in where reach is missing':'Sum of known views'),p=='IG'&&D.api&&D.api.posts?'Instagram API + tracker':'');
+ let K=card('Posts',fmt(R.length),R.length?`${R.map(x=>x.date).filter(Boolean).sort()[0]||''} → ${R.map(x=>x.date).filter(Boolean).sort().pop()||''}`:'',p=='IG'&&D.api&&D.api.posts?'Instagram API + tracker':'live')+card(p=='IG'?`Post views total (${fmt(V.n)} posts, lifetime)`:'Views',fN(V.s),sk(V,p=='IG'?'Sum of each post\'s lifetime views, not account views for a period · views stand-in where reach is missing':'Sum of known views'),p=='IG'&&D.api&&D.api.posts?'Instagram API + tracker':'');
  if(p=='IG'&&D.api&&D.api.posts){const T0=D.trkIG;K+=card('Tracker views',fN(T0.v),`<span style="opacity:.8">Tracker, superseded by API</span> · ${fmt(T0.n)} of ${fmt(T0.p)} tracker URLs had views · ${fmt(D.api.matched)} matched an API post, ${fmt(D.api.added)} API posts were not in the tracker`,'secondary')}
  if(p=='TT')K+=card('Shares',fN(Sh.s),`×3 in TT-RR · median ${f2(per1k('shares','views'))} per 1K views · ${f2(vel('shares'))}/day`)+card('Comments',fN(Cm.s),`×3 in TT-RR · median ${f2(per1k('comments','views'))} per 1K views · ${f2(vel('comments'))}/day`)+card('Likes',fN(L.s),'Shown, not scored');
  if(p=='IG')K+=card('Reach',Rc.n?fN(Rc.s):'—',sk(Rc,'Scoring base'))+card('Saves',fN(Sv.s),sk(Sv,`median ${f2(per1k('saves','views'))} per 1K views`))+card('Shares / sends',fN(Sh.s),sk(Sh,`median ${f2(per1k('shares','views'))} per 1K views`))+card('Comments',fN(Cm.s),'Weighted ×3 · '+sk(Cm,''));
@@ -650,15 +650,17 @@ $('pane-IG').insertAdjacentHTML('afterbegin',`<section id="iglive-s" class="reve
 skeleton('iglive-t',6,10);
 function drawIGLive(t){if(!IGL)return;IGL.accounts.forEach((a,i)=>trend('iglive-c'+i,a.posts,t))}
 function renderIGLive(){const d=IGL,ins=a=>a.insights_28d||{};$('iglive-src').textContent=d.source;
- $('iglive-msg').textContent=`${d.window_days}-day account insights cover ${d.window.since} to ${d.window.until} (ET). Accounts: ${d.accounts.map(a=>'@'+a.username).join(', ')}.`;
+ $('iglive-msg').textContent=`Account views/reach headline = last 30 days (${d.window_30d?d.window_30d.since+' → '+d.window_30d.until+' ET, rolling; the Graph API allows at most 30 days and Instagram\'s app uses its own day boundaries, so the app can show a slightly different number':'n/a'}). 28-day figures cover ${d.window.since} to ${d.window.until} (ET). Accounts: ${d.accounts.map(a=>'@'+a.username).join(', ')}.`;
  const fu=a=>ins(a).follows_and_unfollows;
- $('iglive-acc').innerHTML=d.accounts.map(a=>{const p=a.profile,I=ins(a),f=fu(a);return `<h3 style="margin:18px 0 10px">@${esc(a.username)}</h3><div class="grid">`+
+ const W30=d.window_30d?`${d.window_30d.since} → ${d.window_30d.until} ET`:'';
+ $('iglive-acc').innerHTML=d.accounts.map(a=>{const p=a.profile,I=ins(a),J=a.insights_30d&&Object.keys(a.insights_30d).length?a.insights_30d:null,f=fu(a);return `<h3 style="margin:18px 0 10px">@${esc(a.username)}</h3><div class="grid">`+
   card('Followers',igN(p.followers_count),`Following ${igN(p.follows_count)}`,'Instagram API live')+
   card('Posts',igN(p.media_count),`${fmt(a.media_pulled)} returned by the media list`)+
-  card(`Reach · ${d.window_days}d`,igN(I.reach),'Unique accounts reached')+
-  card(`Views · ${d.window_days}d`,igN(I.views),'Impressions is retired in v21; views replaces it')+
-  card(`Profile views · ${d.window_days}d`,igN(I.profile_views),'')+
-  card(`Accounts engaged · ${d.window_days}d`,igN(I.accounts_engaged),`Total interactions ${igN(I.total_interactions)}`)+
+  (J?card('Account views · last 30 days',igN(J.views),`Instagram API, ${esc(W30)} · 28-day: ${igN(I.views)}`,'Instagram API live'):'')+
+  (J?card('Reach · last 30 days',igN(J.reach),`Unique accounts reached · 28-day: ${igN(I.reach)}`):card(`Reach · ${d.window_days}d`,igN(I.reach),'Unique accounts reached'))+
+  (J?'':card(`Views · ${d.window_days}d`,igN(I.views),'Impressions is retired in v21; views replaces it'))+
+  card(J?'Profile views · last 30 days':`Profile views · ${d.window_days}d`,igN(J?J.profile_views:I.profile_views),J?`28-day: ${igN(I.profile_views)}`:'')+
+  card(J?'Accounts engaged · last 30 days':`Accounts engaged · ${d.window_days}d`,igN(J?J.accounts_engaged:I.accounts_engaged),`Total interactions ${igN(J?J.total_interactions:I.total_interactions)}`+(J?` · 28-day engaged ${igN(I.accounts_engaged)}`:''))+
   card(`Follows · ${d.window_days}d`,f?igN(f.follows):'—',f?`Unfollows ${igN(f.unfollows)} · net ${f.net==null?'—':(f.net>0?'+':'')+fmt(f.net)}`:'')+
   `</div>`}).join('');
  $('iglive-charts').innerHTML=d.accounts.map((a,i)=>`<div class="card chart-card"><div><h3>@${esc(a.username)} posts and views per month</h3><div class="cap">By post date (ET) · per-post lifetime views</div></div><div class="chart-box wait"><canvas id="iglive-c${i}"></canvas></div></div>`).join('');

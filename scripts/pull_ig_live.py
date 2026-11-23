@@ -28,6 +28,7 @@ ACCOUNT_METRICS = ["reach", "views", "impressions", "profile_views", "accounts_e
                    "follows_and_unfollows"]
 MEDIA_METRICS = ["views", "reach", "saved", "shares", "total_interactions", "plays"]
 DAYS = 28
+DAYS_HEADLINE = 30  # Graph API max: since..until may span at most 30 days (2,592,000 s); this matches the app's "last 30 days" most closely
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ET = ZoneInfo("America/New_York")
 
@@ -135,7 +136,11 @@ def main():
            "window_days": DAYS,
            "window": {"since": datetime.fromtimestamp(since, ET).strftime("%Y-%m-%d"),
                       "until": datetime.fromtimestamp(until, ET).strftime("%Y-%m-%d")},
-           "api": "graph.facebook.com v21.0", "accounts": []}
+           "api": "graph.facebook.com v21.0", "accounts": [],
+           "headline_days": DAYS_HEADLINE,
+           "window_30d": {"since": datetime.fromtimestamp(until - 2592000, ET).strftime("%Y-%m-%d %H:%M"),
+                          "until": datetime.fromtimestamp(until, ET).strftime("%Y-%m-%d %H:%M"),
+                          "note": "rolling 30 x 24 h ending at pull time (ET); Instagram's app uses its own day boundaries, so its 'last 30 days' can differ"}}
     rows = []
     for user, ig in ACCOUNTS.items():
         print(f"[{user}] profile", file=sys.stderr)
@@ -147,6 +152,8 @@ def main():
             acct["errors"]["profile"] = perr
         ins, ifail = account_insights(ig, since, until)
         acct["insights_28d"] = ins; acct["errors"]["insights_28d"] = ifail
+        ins30, ifail30 = account_insights(ig, until - 2592000, until)
+        acct["insights_30d"] = ins30; acct["errors"]["insights_30d"] = ifail30
         media, url = [], f"{ig}/media"
         params = {"fields": "id,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count", "limit": 100}
         while url:
