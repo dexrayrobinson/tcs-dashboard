@@ -233,7 +233,7 @@ footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);font-si
 <section id="totals-s" class="reveal">
   <div class="sec-h"><h2>Reconciled totals <span class="tag">snapshot Oct 31</span><span class="tag live">live from tracker</span></h2></div>
   <div class="totals" id="totals"></div>
-  <p class="note"><b>Reconciliation rule.</b> Unique post URLs from Clip Log + Posted - Unmatched, de-duplicated by normalized URL (query string and trailing slash removed; Clip Log wins). A Clip Log clip's Views is one combined number, so it counts only toward its first link; later links add 0. Platform comes from the URL host. Live total = live Instagram + live TikTok + static YouTube. Content Intelligence (Notion) can't be read from a public page, so the tracker is the live source. YouTube is a static value: 8,447 Shorts + 1,649 long-form (Oct 31 snapshot).</p>
+  <p class="note"><b>Reconciliation rule.</b> Unique post URLs from Clip Log + Posted - Unmatched, de-duplicated by normalized URL (query string and trailing slash removed; Clip Log wins). A Clip Log clip's Views is one combined number, so it counts only toward its first link; later links add 0. Platform comes from the URL host. <b>Instagram API override (Nov 23):</b> for @thatcloudstudio and @thatreasoningshow the Instagram API is the source of record. Each tracker Instagram URL whose shortcode is in the API pull takes the API views/reach/likes/comments/shares/saves, and API posts missing from the tracker are added. Other Instagram accounts (@thatcloud2, Stratus, Nimbus, Walkity Talk Studio) keep tracker numbers. Live total = Instagram (API + tracker) + live TikTok + static YouTube. Content Intelligence (Notion) can't be read from a public page, so the tracker is the live source. YouTube is a static value: 8,447 Shorts + 1,649 long-form (Oct 31 snapshot).</p>
 </section>
 
 <!-- h. Platform split (per post, by link domain) -->
@@ -399,20 +399,22 @@ function renderTotals(live){const L=live||{};
  const tot=(L.ig?L.ig.v:SNAP.ig.v)+(L.tt?L.tt.v:SNAP.tt.v)+SNAP.yt.v;
  const pend=STATE=='fail'?'Unavailable':'Loading…';
  const d=tot-SNAP.total;
- const liveCol=(k,p)=>live?`<div class="live"><div class="lbl"><span class="tag live">live from tracker</span></div><div class="v">${N('t-'+k,L[k].v)}</div><div class="sub">${fmt(L[k].v)} · ${fmt(L[k].p)} unique URLs</div></div>`
+ const A=L.ig&&L.ig.api;
+ const liveCol=(k,p)=>live&&k=='ig'&&A?`<div class="live"><div class="lbl"><span class="tag live">Instagram API + tracker</span></div><div class="v">${N('t-'+k,L[k].v)}</div><div class="sub">${fmt(L[k].v)} · ${fmt(L[k].p)} unique URLs<br>${fmt(A.v)} lifetime views summed over ${fmt(A.posts)} posts from the Instagram API (@thatcloudstudio, @thatreasoningshow; not 30-day account views) + ${fmt(L[k].v-A.v)} tracker views on other IG accounts<br><span style="opacity:.7">Tracker, superseded by API: ${fmt(L.ig.trk.v)} views · ${fmt(L.ig.trk.p)} URLs</span></div></div>`
+   :live?`<div class="live"><div class="lbl"><span class="tag live">live from tracker</span></div><div class="v">${N('t-'+k,L[k].v)}</div><div class="sub">${fmt(L[k].v)} · ${fmt(L[k].p)} unique URLs</div></div>`
    :`<div class="live"><div class="lbl"><span class="tag live">live from tracker</span></div><div class="v" style="color:var(--mut)">—</div><div class="sub">${pend}</div></div>`;
  const plat=(name,k,pre)=>`<div class="card plat lift"><h3>${name}</h3><div class="cmp">
    <div><div class="lbl"><span class="tag">snapshot Oct 31</span></div><div class="v">${short(SNAP[k].v)}</div><div class="sub">${fmt(SNAP[k].v)} · ${pre}${fmt(SNAP[k].p)} posts</div></div>${liveCol(k)}</div></div>`;
  $('totals').innerHTML=
-  `<div class="card hero"><div><div class="lbl">Total views <span class="tag ${live?'live':''}">${live?'live from tracker':'snapshot Oct 31'}</span></div>
+  `<div class="card hero"><div><div class="lbl">Total views · lifetime, all posts <span class="tag ${live?'live':''}">${live?(A?'Instagram API + live tracker':'live from tracker'):'snapshot Oct 31'}</span></div>
      <div class="big">${live?N('t-total',tot):short(SNAP.total)}</div>
-     <div class="sub">${live?'Live Instagram + live TikTok + static YouTube':'Instagram + TikTok + YouTube'}</div></div>
+     <div class="sub">${live?(A?'Instagram (API for @thatcloudstudio + @thatreasoningshow, tracker for other IG accounts) + live TikTok + static YouTube':'Live Instagram + live TikTok + static YouTube'):'Instagram + TikTok + YouTube'}</div></div>
    <div class="hero-side"><div class="lbl"><span class="tag">snapshot Oct 31</span></div><div style="font-size:22px;font-weight:300;letter-spacing:-.02em" class="num">≈19.73M · ${fmt(SNAP.total)}</div>
      ${live?`<span class="delta${d<0?' neg':''}">${d>=0?'+':'−'}${fmt(Math.abs(d))} vs snapshot</span>`:''}</div></div>`+
   plat('Instagram','ig','')+plat('TikTok','tt','~')+
   `<div class="card plat lift"><h3>YouTube</h3><div class="cmp" style="grid-template-columns:1fr"><div><div class="lbl"><span class="tag">static</span></div><div class="v">${fmt(SNAP.yt.v)}</div><div class="sub">${SNAP.yt.note}<br>Source: Oct 31 snapshot (not in tracker)</div></div></div></div>`;
  animateNums($('totals'))}
-function renderAud(){$('aud').innerHTML=card('YouTube subscribers','126','As of Oct 26 · Welman\'s Monday report','static')+card('Instagram followers','—','Not sourced')+card('TikTok followers','—','Not sourced')}
+function renderAud(){$('aud').innerHTML=card('YouTube subscribers','126','As of Oct 26 · Welman\'s Monday report','static')+(window.IGLIVE?card('Instagram followers',window.IGLIVE.accounts.map(a=>fmt(a.profile.followers_count??0)).join(' · '),window.IGLIVE.accounts.map(a=>'@'+esc(a.username)).join(' · ')+'<br>'+esc(window.IGLIVE.source),'Instagram API live'):card('Instagram followers','—','Not sourced'))+(window.IGLIVE&&window.IGLIVE.window_30d?card('Instagram account views · last 30 days',window.IGLIVE.accounts.map(a=>a.insights_30d&&a.insights_30d.views!=null?fmt(a.insights_30d.views):'—').join(' · '),window.IGLIVE.accounts.map(a=>'@'+esc(a.username)).join(' · ')+'<br>Reach '+window.IGLIVE.accounts.map(a=>a.insights_30d&&a.insights_30d.reach!=null?fmt(a.insights_30d.reach):'—').join(' · ')+' · '+esc(window.IGLIVE.window_30d.since+' → '+window.IGLIVE.window_30d.until)+' ET','Instagram API live'):'')+card('TikTok followers','—','Not sourced')}
 function renderCounts(clip,posted,un){
  if(!clip){$('counts').innerHTML=['Clips cut','Posted','Unposted','Unmatched posts'].map(l=>card(l,'—',STATE=='fail'?'Unavailable':'Loading…')).join('');return}
  const share=clip.length?posted.length/clip.length:0;
@@ -538,12 +540,26 @@ function build(){const P=new Map(),cl=D['Clip Log']||[],flags=[],clips=[];
   if(plats.length>1)clips.push({file:r.Filename,album:r['Source album'],keys:ks.map(k=>k.join(':'))})});
  for(const r of D['Posted - Unmatched']||[]){const k=key(r['Post link']);if(!k||k[0]=='?')continue;
   put(k,{url:r['Post link'],date:r['Post date'],acct:r.Account,views:nv(r.Views),likes:nv(r.Likes),comments:nv(r.Comments),shares:nv(r['Shares / reposts']),saves:nv(r.Saves),album:r['Source album'],src:r['Source file'],source:'Posted - Unmatched'})}
+ // Instagram API overlay (Dex 2026-11-23: API is the reliable source for @thatcloudstudio + @thatreasoningshow).
+ // Matched by shortcode. API value wins where it exists; the tracker value is kept in x.trk as secondary context.
+ const trkIG={v:0,p:0,n:0};for(const x of P.values())if(x.plat=='IG'){trkIG.p++;if(x.views!=null){trkIG.v+=x.views;trkIG.n++}}
+ const api={posts:0,matched:0,added:0,v:0,trkV:0};
+ if(IGL)for(const a of IGL.accounts)for(const ap of a.posts){const m=(ap.permalink||'').match(/instagram\.com\/(?:[^\/]+\/)?(?:reels?|p|tv)\/([\w-]+)/i);if(!m)continue;
+  const id='IG:'+m[1];let x=P.get(id);api.posts++;
+  if(x){api.matched++;x.trk={views:x.views,reach:x.reach,likes:x.likes,comments:x.comments,shares:x.shares,saves:x.saves,source:x.source};if(x.views!=null)api.trkV+=x.views}
+  else{api.added++;x={plat:'IG',pid:m[1],views:null,album:'',file:'',src:'',url:ap.permalink,date:ap.date,acct:'@'+a.username,age:null,band0:'',score:null};P.set(id,x)}
+  x.api=true;x.apiAcct='@'+a.username;x.source='Instagram API';
+  for(const[k,ak]of[['views','views'],['reach','reach'],['likes','like_count'],['comments','comments_count'],['shares','shares'],['saves','saved']])if(ap[ak]!=null)x[k]=ap[ak];
+  if(x.views!=null)api.v+=x.views}
+ D.api=api;D.trkIG=trkIG;
  for(const x of P.values()){if(x.age==null&&x.date){const t=Date.parse(x.date);if(!isNaN(t))x.age=Math.max(0,Math.floor((NOW-t)/DAY))}
-  x.band=x.views!=null&&x.views<100?LOW:(x.band0&&x.score!=null?x.band0:NS)}
+  // band gate (<100 views = too early/low) stays on TRACKER views so scoring is unchanged; API-only posts have no tracker score -> Not scored
+  const bv=x.trk?x.trk.views:(x.api?null:x.views);
+  x.band=bv!=null&&bv<100?LOW:(x.band0&&x.score!=null?x.band0:NS)}
  D.P=[...P.values()];D.flags=flags;D.clips=clips.map(c=>({...c,posts:c.keys.map(k=>P.get(k)).filter(Boolean)}));
  const S={};for(const p of['TT','IG','YTS','YTL'])S[p]={plat:PN[p],posts:0,withViews:0,views:0,noViews:0,src:{}};
  for(const x of D.P){const s=S[x.plat];if(!s)continue;s.posts++;if(x.views==null)s.noViews++;else{s.withViews++;s.views+=x.views}s.src[x.source]=(s.src[x.source]||0)+1}
- D.split=S;window.SPLIT={tt:{v:S.TT.views,p:S.TT.posts},ig:{v:S.IG.views,p:S.IG.posts}};if(window.load&&load.last)renderTotals(window.SPLIT)}
+ D.split=S;window.SPLIT={tt:{v:S.TT.views,p:S.TT.posts},ig:{v:S.IG.views,p:S.IG.posts,api:IGL?{...api,src:IGL.source}:null,trk:trkIG}};if(window.load&&load.last)renderTotals(window.SPLIT)}
 function bm(p){const B=(D.Benchmarks||[]).find(r=>r.platform===PL[p].bm);return B?{p25:nv(B.floor_p25),p50:nv(B.baseline_median),p75:nv(B.target_p75),p90:nv(B.outlier_p90),n:B.sample_n,status:B.status}:null}
 function albumRoll(rows,p){const w=PL[p].win,b=bm(p),o={};
  for(const x of rows){if(!x.album)continue;const a=o[x.album]??={album:x.album,posts:0,views:0,scored:[],mature:[],b:{Dim:0,Steady:0,Bright:0,Outlier:0},last:''};a.posts++;a.views+=x.views||0;
@@ -557,7 +573,7 @@ const stat=(v,a)=>pill(v)+(v=='Too early'&&a.lean?` <span class="cap">trending $
 function monthly(rows){const M={};for(const x of rows){const k=(x.date||'').slice(0,7);if(!/^\d{4}-\d{2}$/.test(k))continue;(M[k]??={p:0,v:0});M[k].p++;M[k].v+=x.views||0}const ks=Object.keys(M).sort();return{ks,M}}
 function trend(id,rows,t){const{ks,M}=monthly(rows);chart(id,{data:{labels:ks,datasets:[{type:'bar',label:'Posts',data:ks.map(k=>M[k].p),backgroundColor:'rgba(0,122,255,.35)',borderRadius:4,yAxisID:'y'},{type:'line',label:'Views',data:ks.map(k=>M[k].v),borderColor:'#FF9F0A',backgroundColor:'#FF9F0A',tension:.3,yAxisID:'y1'}]},options:{maintainAspectRatio:false,scales:{y:{position:'left'},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>short(v)}}}}})}
 function paneHTML(p){const c=PL[p];return `
- <section class="reveal"><div class="sec-h"><h2>${PN[p]} <span class="tag">${esc(c.label)}</span><span class="tag live">live from tracker</span></h2></div>
+ <section class="reveal"><div class="sec-h"><h2>${PN[p]} <span class="tag">${esc(c.label)}</span><span class="tag live">${p=='IG'?'Instagram API for @thatcloudstudio + @thatreasoningshow · tracker for other accounts':'live from tracker'}</span></h2></div>
  <p class="note">${esc(c.formula)} Bands from the Benchmarks tab: Dim &lt; P25 · Steady P25–P75 · Bright P75–P90 · Outlier ≥ P90. A clip needs at least 100 views to be scored. Observation windows: day ${c.checks[0]} then day ${c.checks[1]}; albums 28 days after the last clip. Priority metrics are shown, not scored.</p>
  <div id="${p}-miss"></div>
  <div id="${p}-kpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px"></div>
@@ -578,7 +594,8 @@ function drawPane(p,t){const c=PL[p],R=D.P.filter(x=>x.plat==p),b=bm(p),hasScore
  const scored=R.filter(x=>BANDS.includes(x.band)),bc=Object.fromEntries([...BANDS,LOW,NS].map(k=>[k,R.filter(x=>x.band==k).length]));
  const per1k=(a,bb)=>med(R.filter(x=>x[a]!=null&&x[bb]>0).map(x=>x[a]/x[bb]*1000));const vel=a=>med(R.filter(x=>x[a]!=null&&x.age>=1).map(x=>x[a]/x.age));
  const w=c.checks.map(d=>R.filter(x=>x.age!=null&&x.age>=d).length);
- let K=card('Posts',fmt(R.length),R.length?`${R.map(x=>x.date).filter(Boolean).sort()[0]||''} → ${R.map(x=>x.date).filter(Boolean).sort().pop()||''}`:'','live')+card('Views',fN(V.s),sk(V,p=='IG'?'Views stand-in where reach is missing':'Sum of known views'));
+ let K=card('Posts',fmt(R.length),R.length?`${R.map(x=>x.date).filter(Boolean).sort()[0]||''} → ${R.map(x=>x.date).filter(Boolean).sort().pop()||''}`:'',p=='IG'&&D.api&&D.api.posts?'Instagram API + tracker':'live')+card(p=='IG'?`Post views total (${fmt(V.n)} posts, lifetime)`:'Views',fN(V.s),sk(V,p=='IG'?'Sum of each post\'s lifetime views, not account views for a period · views stand-in where reach is missing':'Sum of known views'),p=='IG'&&D.api&&D.api.posts?'Instagram API + tracker':'');
+ if(p=='IG'&&D.api&&D.api.posts){const T0=D.trkIG;K+=card('Tracker views',fN(T0.v),`<span style="opacity:.8">Tracker, superseded by API</span> · ${fmt(T0.n)} of ${fmt(T0.p)} tracker URLs had views · ${fmt(D.api.matched)} matched an API post, ${fmt(D.api.added)} API posts were not in the tracker`,'secondary')}
  if(p=='TT')K+=card('Shares',fN(Sh.s),`×3 in TT-RR · median ${f2(per1k('shares','views'))} per 1K views · ${f2(vel('shares'))}/day`)+card('Comments',fN(Cm.s),`×3 in TT-RR · median ${f2(per1k('comments','views'))} per 1K views · ${f2(vel('comments'))}/day`)+card('Likes',fN(L.s),'Shown, not scored');
  if(p=='IG')K+=card('Reach',Rc.n?fN(Rc.s):'—',sk(Rc,'Scoring base'))+card('Saves',fN(Sv.s),sk(Sv,`median ${f2(per1k('saves','views'))} per 1K views`))+card('Shares / sends',fN(Sh.s),sk(Sh,`median ${f2(per1k('shares','views'))} per 1K views`))+card('Comments',fN(Cm.s),'Weighted ×3 · '+sk(Cm,''));
  if(p=='YTS'){const erR=R.filter(x=>x.views>0&&x.likes!=null),er=med(erR.map(x=>((x.likes||0)+(x.comments||0)+(x.shares||0))/x.views*100));K+=card('Engagement rate',er==null||erR.length<10?'—':pct(er),`Median (likes+comments+shares) ÷ views · only ${fmt(erR.length)} posts have likes`)+card('Likes',fN(L.s),sk(L,''))+card('Comments',fN(Cm.s),sk(Cm,''))+card('Posts without views',fmt(R.filter(x=>x.views==null).length),'Multi-link Clip Log rows; views not split')}
@@ -595,11 +612,12 @@ function drawPane(p,t){const c=PL[p],R=D.P.filter(x=>x.plat==p),b=bm(p),hasScore
  chart(p+'-cAlb',{type:'bar',data:{labels:top.map(a=>a.album),datasets:[{data:top.map(a=>scored.length?(a.med==null?0:+a.med.toFixed(2)):a.views),backgroundColor:top.map(a=>SC[a.status]||PC[p]),borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,scales:hbarScales(t,scored.length?v=>v:short),plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${top[c.dataIndex].status} · ${fmt(top[c.dataIndex].posts)} posts · ${fmt(top[c.dataIndex].views)} views`}}}}});
  const mix=a=>BANDS.map(k=>a.b[k]?`<span style="color:${BC[k]};font-weight:600">${a.b[k]}</span>`:'<span style="opacity:.3">0</span>').join(' / ');
  table(p+'-tAlb',[{k:'album',l:'Album',cls:'strong wrap'},{k:'posts',l:'Posts',n:1},{k:'views',l:'Views',n:1,f:fmt},{k:'medv',l:'Median '+c.score,n:1,f:f2},{k:'mix',l:'Dim / Steady / Bright / Outlier',f:v=>v},{k:'last',l:'Last clip'},{k:'status',l:'Status',f:(v,a)=>stat(v,a)}],A.map(a=>({...a,medv:a.med??-1,mix:mix(a)})).map(a=>({...a,medv:a.med})),'views');
- const C=R.map(x=>({...x,sv:x.score??-1,vv:x.views??-1}));
- const cols=[{k:'date',l:'Posted'},{k:'file',l:'Clip',cls:'file',f:v=>v?esc(v):'<span style="opacity:.5">unmatched</span>'},{k:'album',l:'Album',cls:'wrap'},{k:'vv',l:'Views',n:1,f:v=>v<0?'— not split':fmt(v)}];
+ const C=R.map(x=>({...x,sv:x.score??-1,vv:x.views??-1,tv:x.trk&&x.trk.views!=null?x.trk.views:-1,acc2:x.apiAcct||x.acct||''}));
+ const cols=[{k:'date',l:'Posted'},{k:'file',l:'Clip',cls:'file',f:v=>v?esc(v):'<span style="opacity:.5">unmatched</span>'},{k:'album',l:'Album',cls:'wrap'},{k:'vv',l:'Views',n:1,f:(v,r)=>v<0?(r&&r.api?'—':'— not split'):fmt(v)+(r&&r.api?' <span class="tag live">API</span>':'')}];
+ if(p=='IG')cols.splice(1,0,{k:'acc2',l:'Account'}),cols.push({k:'tv',l:'Tracker views (superseded)',n:1,f:v=>v<0?'—':`<span style="opacity:.6">${fmt(v)}</span>`});
  if(p=='IG')cols.push({k:'reach',l:'Reach',n:1,f:fN},{k:'saves',l:'Saves',n:1,f:fN});
  cols.push({k:'likes',l:'Likes',n:1,f:fN},{k:'comments',l:'Comments',n:1,f:fN},{k:'shares',l:'Shares',n:1,f:fN},{k:'age',l:'Age (d)',n:1,f:fN},{k:'sv',l:c.score,n:1,f:v=>v<0?'—':f2(v)},{k:'band',l:'Band',f:(v,r)=>pill(v)+(r&&r.prov?' <span class="tag">provisional</span>':'')},{k:'url',l:'Link',f:v=>v?`<a href="${esc(v)}" target="_blank" rel="noopener">open</a>`:''});
- const T=table(p+'-tClips',cols,C,scored.length?'sv':'vv');$(p+'-q').oninput=e=>{const q=e.target.value.toLowerCase();T.set(q?C.filter(x=>[x.file,x.album,x.date,x.band,x.acct].join(' ').toLowerCase().includes(q)):C)}}
+ const T=table(p+'-tClips',cols,C,scored.length?'sv':'vv');$(p+'-q').oninput=e=>{const q=e.target.value.toLowerCase();T.set(q?C.filter(x=>[x.file,x.album,x.date,x.band,x.acct,x.apiAcct].join(' ').toLowerCase().includes(q)):C)}}
 function drawOverview(t){const S=D.split,rows=['TT','IG','YTS','YTL'].map(k=>({k,...S[k],srcs:Object.entries(S[k].src).map(([a,n])=>`${a}: ${fmt(n)}`).join(' · ')}));
  const tv=rows.reduce((a,r)=>a+r.views,0);
  table('tPlat',[{k:'plat',l:'Platform',cls:'strong'},{k:'posts',l:'Posts',n:1,f:fmt},{k:'withViews',l:'With views',n:1,f:fmt},{k:'noViews',l:'Views not split',n:1,f:fmt},{k:'views',l:'Views',n:1,f:fmt},{k:'srcs',l:'Source of posts',cls:'wrap'}],rows,'views');
@@ -620,8 +638,39 @@ function drawOverview(t){const S=D.split,rows=['TT','IG','YTS','YTL'].map(k=>({k
  table('tXClip',[{k:'file',l:'Clip',cls:'file'},{k:'album',l:'Album',cls:'wrap'},{k:'TT',l:'TikTok',f:cell('TT')},{k:'IG',l:'Instagram',f:cell('IG')},{k:'YTS',l:'YT Shorts',f:cell('YTS')},{k:'YTL',l:'YT long',f:cell('YTL')}],X,'file');
  const combo={};for(const o of X){const k=['TT','IG','YTS','YTL'].filter(p=>o[p]).map(p=>PN[p]).join(' + ');combo[k]=(combo[k]||0)+1}const ck=Object.keys(combo);
  chart('cXClip',{type:'bar',data:{labels:ck,datasets:[{data:ck.map(k=>combo[k]),backgroundColor:'#007AFF',borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,scales:hbarScales(t,fmt),plugins:{legend:{display:false}}}})}
-function draw(){if(!D||!D.P||!window.Chart)return;const t=applyChartTheme()||theme();try{drawOverview(t)}catch(e){console.error(e)}for(const p of['TT','IG','YTS'])try{drawPane(p,t)}catch(e){console.error(p,e)}}
+function draw(){try{if(window.Chart)drawIGLive(applyChartTheme()||theme())}catch(e){console.error(e)}if(!D||!D.P||!window.Chart)return;const t=applyChartTheme()||theme();try{drawOverview(t)}catch(e){console.error(e)}for(const p of['TT','IG','YTS'])try{drawPane(p,t)}catch(e){console.error(p,e)}}
 for(const p of['TT','IG','YTS']){$('pane-'+p).innerHTML=paneHTML(p);skeleton(p+'-tAlb',6,7);skeleton(p+'-tClips',8,10)}
+/* ---------- Instagram API (live): data/ig_live.json, written by scripts/pull_ig_live.py (manual run) ---------- */
+let IGL=null;const igN=v=>v==null||v<0?'—':fmt(v);
+$('pane-IG').insertAdjacentHTML('afterbegin',`<section id="iglive-s" class="reveal"><div class="sec-h"><h2>Instagram API <span class="tag live" id="iglive-src">Instagram API (live)</span></h2></div>
+ <div id="iglive-msg" class="cap">Loading data/ig_live.json…</div><div id="iglive-acc"></div>
+ <div class="grid-2" id="iglive-charts" style="margin-top:16px"></div>
+ <div class="card" style="margin-top:16px"><h3>All posts (Instagram API)</h3><div class="cap">Per-post numbers straight from the Graph API. Views/reach/saves/shares/interactions are per-post lifetime insights; blank (—) = the API returned no value.</div><input id="iglive-q" placeholder="Filter by account or caption" style="margin:8px 0;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:transparent;color:inherit"><div class="scroll" style="max-height:560px;overflow:auto"><table id="iglive-t"></table></div></div>
+ <p class="note" id="iglive-note"></p></section>`);
+skeleton('iglive-t',6,10);
+function drawIGLive(t){if(!IGL)return;IGL.accounts.forEach((a,i)=>trend('iglive-c'+i,a.posts,t))}
+function renderIGLive(){const d=IGL,ins=a=>a.insights_28d||{};$('iglive-src').textContent=d.source;
+ $('iglive-msg').textContent=`Account views/reach headline = last 30 days (${d.window_30d?d.window_30d.since+' → '+d.window_30d.until+' ET, rolling; the Graph API allows at most 30 days and Instagram\'s app uses its own day boundaries, so the app can show a slightly different number':'n/a'}). 28-day figures cover ${d.window.since} to ${d.window.until} (ET). Accounts: ${d.accounts.map(a=>'@'+a.username).join(', ')}.`;
+ const fu=a=>ins(a).follows_and_unfollows;
+ const W30=d.window_30d?`${d.window_30d.since} → ${d.window_30d.until} ET`:'';
+ $('iglive-acc').innerHTML=d.accounts.map(a=>{const p=a.profile,I=ins(a),J=a.insights_30d&&Object.keys(a.insights_30d).length?a.insights_30d:null,f=fu(a);return `<h3 style="margin:18px 0 10px">@${esc(a.username)}</h3><div class="grid">`+
+  card('Followers',igN(p.followers_count),`Following ${igN(p.follows_count)}`,'Instagram API live')+
+  card('Posts',igN(p.media_count),`${fmt(a.media_pulled)} returned by the media list`)+
+  (J?card('Account views · last 30 days',igN(J.views),`Instagram API, ${esc(W30)} · 28-day: ${igN(I.views)}`,'Instagram API live'):'')+
+  (J?card('Reach · last 30 days',igN(J.reach),`Unique accounts reached · 28-day: ${igN(I.reach)}`):card(`Reach · ${d.window_days}d`,igN(I.reach),'Unique accounts reached'))+
+  (J?'':card(`Views · ${d.window_days}d`,igN(I.views),'Impressions is retired in v21; views replaces it'))+
+  card(J?'Profile views · last 30 days':`Profile views · ${d.window_days}d`,igN(J?J.profile_views:I.profile_views),J?`28-day: ${igN(I.profile_views)}`:'')+
+  card(J?'Accounts engaged · last 30 days':`Accounts engaged · ${d.window_days}d`,igN(J?J.accounts_engaged:I.accounts_engaged),`Total interactions ${igN(J?J.total_interactions:I.total_interactions)}`+(J?` · 28-day engaged ${igN(I.accounts_engaged)}`:''))+
+  card(`Follows · ${d.window_days}d`,f?igN(f.follows):'—',f?`Unfollows ${igN(f.unfollows)} · net ${f.net==null?'—':(f.net>0?'+':'')+fmt(f.net)}`:'')+
+  `</div>`}).join('');
+ $('iglive-charts').innerHTML=d.accounts.map((a,i)=>`<div class="card chart-card"><div><h3>@${esc(a.username)} posts and views per month</h3><div class="cap">By post date (ET) · per-post lifetime views</div></div><div class="chart-box wait"><canvas id="iglive-c${i}"></canvas></div></div>`).join('');
+ const rows=d.accounts.flatMap(a=>a.posts.map(p=>({acct:'@'+a.username,date:p.date,cap:p.caption||'',type:p.media_product_type=='REELS'?'Reel':p.media_type=='CAROUSEL_ALBUM'?'Carousel':p.media_type=='IMAGE'?'Image':(p.media_type||''),views:p.views??-1,reach:p.reach??-1,likes:p.like_count??-1,comments:p.comments_count??-1,saved:p.saved??-1,shares:p.shares??-1,link:p.permalink||''})));
+ const cols=[{k:'acct',l:'Account'},{k:'date',l:'Posted'},{k:'cap',l:'Caption',cls:'wrap',f:(v,r)=>r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(v||'(no caption)')}</a>`:esc(v)},{k:'type',l:'Type'},...['views','reach','likes','comments','saved','shares'].map(k=>({k,l:k=='saved'?'Saves':k[0].toUpperCase()+k.slice(1),n:1,f:igN}))];
+ const draw=()=>{const q=$('iglive-q').value.trim().toLowerCase();table('iglive-t',cols,q?rows.filter(r=>(r.acct+' '+r.cap).toLowerCase().includes(q)):rows,'views')};$('iglive-q').oninput=draw;draw();
+ const fails=d.accounts.map(a=>{const e=Object.keys((a.errors||{}).insights_28d||{}),m=Object.entries(a.media_insight_failures||{});return e.length||m.length?`@${a.username}: ${[e.length?'account '+e.join(', '):'',m.length?`per-post insights missing on ${Math.max(...m.map(x=>x[1].posts))} post(s)`:''].filter(Boolean).join('; ')}`:''}).filter(Boolean);
+ $('iglive-note').innerHTML=`<b>Source.</b> ${esc(d.source)} via ${esc(d.api)}. Numbers are refreshed only when someone runs <code>scripts/pull_ig_live.py</code> by hand (see README). This section is separate from the tracker and does not change any tracker totals or scores.${fails.length?' <b>Blank metrics.</b> '+esc(fails.join(' · '))+'.':''}`;
+ window.IGLIVE=d;renderAud();if(D&&D.P){try{build();draw()}catch(e){console.error(e)}}if(window.Chart)drawIGLive(applyChartTheme()||theme());$('pane-IG').querySelectorAll('.reveal').forEach(e=>{if(!$('pane-IG').hidden)e.classList.add('in')})}
+fetch('data/ig_live.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw r.status;return r.json()}).then(d=>{IGL=d;renderIGLive()}).catch(e=>{console.error(e);$('iglive-msg').textContent='Instagram API data file (data/ig_live.json) not found or unreadable.';$('iglive-t').innerHTML=''});
 skeleton('tXAlb',6,10);skeleton('tXClip',6,6);skeleton('tFlag',4,7);
 // tabs
 const TABS={overview:'pane-overview',tiktok:'pane-TT',instagram:'pane-IG',shorts:'pane-YTS'};
